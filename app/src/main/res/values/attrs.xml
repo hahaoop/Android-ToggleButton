@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ToggleButton">
+        <attr name="toggleCloseBackgroundColor" format="color"/>
+        <attr name="toggleOpenBackgroundColor" format="color"/>
+        <attr name="toggleCircleColor" format="color"/>
+        <attr name="toggleState">
+            <enum name="open" value="0"/>
+            <enum name="close" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>
