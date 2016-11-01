@@ -1,6 +1,7 @@
 # Android-ToggleButton
 
 ![Alt text](https://github.com/hahaoop/Android-ToggleButton/raw/master/Screenshots/s1.gif)
+<br /><br />
 ![Alt text](https://github.com/hahaoop/Android-ToggleButton/raw/master/Screenshots/s2.png)
 #### Config in xml
 ```
