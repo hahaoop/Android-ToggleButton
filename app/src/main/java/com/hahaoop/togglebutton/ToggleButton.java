@@ -9,6 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,25 +20,29 @@ import android.view.View;
  */
 public class ToggleButton extends View{private static final int DEFAULT_WIDTH = 70;
     private static final int DEFAULT_HEIGHT = 40;
+    private static final int CLOSED = 1;
 
     private Paint circlePaint;
     private Paint backgroundPaint;
+    private RectF rectF;
 
     private OnToogleChangeListener listener;
 
     private int closeBackgroundColor;
     private int openBackgroundColor;
     private int circleColor;
+
     private float arcRadius;
     private float circleRadius;
+
     private int mWidth;
     private int mHeight;
+
     private float density;
     private Point mPoint;
-    private boolean isComplete = true; //is Animate completed
-    private boolean isClose;
 
-    private RectF rectF;
+    private boolean isComplete = true; //is Animate completed
+    private boolean isClosed;
 
     public ToggleButton(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -45,9 +51,9 @@ public class ToggleButton extends View{private static final int DEFAULT_WIDTH = 
         closeBackgroundColor = array.getColor(R.styleable.ToggleButton_toggleCloseBackgroundColor, Color.LTGRAY);
         openBackgroundColor = array.getColor(R.styleable.ToggleButton_toggleOpenBackgroundColor,Color.GREEN);
         circleColor = array.getColor(R.styleable.ToggleButton_toggleCircleColor,Color.WHITE);
-        int state = array.getInt(R.styleable.ToggleButton_toggleState,1);
+        int state = array.getInt(R.styleable.ToggleButton_toggleState,CLOSED);
         array.recycle();
-        isClose = state==1;
+        isClosed = state==CLOSED;
         initPaint();
         initListener();
     }
@@ -58,13 +64,12 @@ public class ToggleButton extends View{private static final int DEFAULT_WIDTH = 
         circlePaint.setStyle(Paint.Style.FILL);
 
         backgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        if(isClose){
+        backgroundPaint.setStyle(Paint.Style.FILL);
+        if(isClosed){
             backgroundPaint.setColor(closeBackgroundColor);
         } else {
             backgroundPaint.setColor(openBackgroundColor);
         }
-        backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-
     }
 
     private void initListener(){
@@ -119,7 +124,7 @@ public class ToggleButton extends View{private static final int DEFAULT_WIDTH = 
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if(mPoint==null){
-            if(isClose){
+            if(isClosed){
                 mPoint = new Point(arcRadius,mHeight/2);
             } else {
                 mPoint = new Point(mWidth-arcRadius,mHeight/2);
@@ -141,18 +146,18 @@ public class ToggleButton extends View{private static final int DEFAULT_WIDTH = 
     }
 
     public boolean isOpen(){
-        return !isClose;
+        return !isClosed;
     }
 
     private void startAnimate(){
         Point startPoint = mPoint;
         Point endPoint;
-        if(isClose){
+        if(isClosed){
             endPoint = new Point(mWidth-arcRadius,mHeight/2);
-            setBackgroundPaintColor(openBackgroundColor);
+            setBackgroundPaintColor(openBackgroundColor);//when the animation beginning,set background.
         } else{
             endPoint = new Point(arcRadius,mHeight/2);
-            setBackgroundPaintColor(closeBackgroundColor);
+            setBackgroundPaintColor(closeBackgroundColor);//when the animation beginning,set background.
         }
         ValueAnimator animator = ObjectAnimator.ofObject(new PointEvaluator(),startPoint,endPoint);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -162,7 +167,7 @@ public class ToggleButton extends View{private static final int DEFAULT_WIDTH = 
                 mPoint = (Point) animation.getAnimatedValue();
                 if(fraction==1){
                     isComplete = !isComplete;
-                    isClose = !isClose;
+                    isClosed = !isClosed;
                     if(listener!=null){
                         listener.onChange(ToggleButton.this);
                     }
@@ -211,6 +216,59 @@ public class ToggleButton extends View{private static final int DEFAULT_WIDTH = 
         public void setY(float y) {
             this.y = y;
         }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        boolean[] status = new boolean[1];
+        status[0]=isClosed;
+        return new SavedState(superState,status);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+        isClosed = ss.status[0];
+        if(isClosed){
+            backgroundPaint.setColor(closeBackgroundColor);
+        } else {
+            backgroundPaint.setColor(openBackgroundColor);
+        }
+        invalidate();
+    }
+
+    static class SavedState extends BaseSavedState{
+
+        private boolean[] status;
+
+        public SavedState(Parcel source) {
+            super(source);
+        }
+
+        public SavedState(Parcelable source,boolean[] status){
+            super(source);
+            this.status = status;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeBooleanArray(status);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel source) {
+                return new SavedState(source);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 
 }
