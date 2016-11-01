@@ -20,8 +20,8 @@
 
     <com.hahaoop.togglebutton.ToggleButton
         android:id="@+id/test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_width="70dp"
+        android:layout_height="40dp" />
     <com.hahaoop.togglebutton.ToggleButton
         android:id="@+id/test1"
         android:layout_width="wrap_content"
