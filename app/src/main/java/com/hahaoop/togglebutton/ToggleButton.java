@@ -18,7 +18,8 @@ import android.view.View;
 /**
  * Created by hahaoop
  */
-public class ToggleButton extends View{private static final int DEFAULT_WIDTH = 70;
+public class ToggleButton extends View{
+    private static final int DEFAULT_WIDTH = 70;
     private static final int DEFAULT_HEIGHT = 40;
     private static final int CLOSED = 1;
 
